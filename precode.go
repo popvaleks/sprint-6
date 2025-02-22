@@ -70,6 +70,11 @@ func sendTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, ok := tasks[task.ID]; ok {
+		http.Error(w, fmt.Sprintf("Task id=%s is already exist", task.ID), http.StatusBadRequest)
+		return
+	}
+
 	tasks[task.ID] = task
 
 	w.Header().Set("Content-Type", "application/json")
@@ -81,7 +86,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Task id=%s not found", id), http.StatusBadRequest)
 		return
 	}
 
@@ -93,9 +98,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(resp); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	w.Write(resp)
 }
 
 func removeTask(w http.ResponseWriter, r *http.Request) {
@@ -103,7 +106,7 @@ func removeTask(w http.ResponseWriter, r *http.Request) {
 
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Task id=%s not found", id), http.StatusBadRequest)
 		return
 	}
 
